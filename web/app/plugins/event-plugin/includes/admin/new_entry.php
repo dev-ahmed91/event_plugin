@@ -1,6 +1,6 @@
 <div class="container">
    <div class="row">
-    <form method="post">
+    <form method="post" enctype="multipart/form-data">
     <div class="col-lg-12">
         <div class="box box-primary">
             <div class="box-header with-border">
@@ -10,9 +10,13 @@
             <!-- form start -->
 
             <?php
-            if(isset($message))
+            if(isset($messageError))
             {
-                echo $message;
+                echo "<div class='alert alert-danger'><strong>Error : ".$messageError."</strong></div>";
+            }
+            if(isset($messageSuccess))
+            {
+                echo "<div class='alert alert-success'><strong>".$messageSuccess."</strong></div>";
             }
             ?>
               <div class="box-body">
@@ -24,13 +28,13 @@
                 
                 <div class="form-group">
                   <label for="inputDescription">Event Description</label>
-                  <textarea name="event_description" id="inputDescription" class="form-control" ><?php if(isset($_POST['event_description'])){echo $_POST['event_description'];} ?></textarea>
+                  <textarea name="description" id="inputDescription" class="form-control" ><?php if(isset($_POST['description'])){echo $_POST['description'];} ?></textarea>
                     <p class="help-block">Add Event Description</p>
                 </div>
                  <div class="form-group">
                   <label for="inputImage">Image</label>
                   <input type="file" name="image" class="form-control" id="inputImage">
-                     <p class="help-block">Add City Latitude</p>
+                     <p class="help-block">Upload Event Image</p>
                 </div>
                 <div class="form-group">
                   <label for="inputDate">Date</label>
@@ -50,9 +54,9 @@
                     <p class="help-block">Example : 12:05 Am</p>
                 </div>
                 <div class="form-group">
-                  <label for="inputCategory">Category Of Event</label>
+                  <label for="inputCategory">Event Category</label>
                   <input type="text" name="event_category" value="<?php if(isset($_POST['event_category'])){echo $_POST['event_category'];} ?>" class="form-control" id="inputCategory" >
-                    <p class="help-block">Add Event Title</p>
+                    <p class="help-block">Add Event Category</p>
                 </div>  
                 <div class="form-group">
                   <label for="inputCategory">Tags</label>
@@ -72,6 +76,8 @@
     </form>    
 </div>
 </div>
+
+
 <script type="text/javascript">
 	$('#input-tags').tagsInput();
 </script>
