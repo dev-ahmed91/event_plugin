@@ -18,44 +18,43 @@ class eventsAdmin extends eventsCrud{
     /**
 	 * Define constract to control the plugin
 	 *
-     * create plugin main table
-	 * create plugin events tags table
-	 * add pages to admin menu
 	 * load css files
 	 * load js files
-	 * add plugin hooks
+	 * add pages to admin menu
      *
 	 * @since    1.0.0
 	 */
     public function __construct(){
-        
-        // create Plugin Main Table
-        $this->create_plugin_main_table();
-        // create Plugin events tags table
-        $this->create_plugin_events_tags_table();
-        // Add Pages To Admin menu
-        add_action('admin_menu', array($this,'add_pages_to_menu'));
-        add_action('admin_menu',  array($this,'registerOptionPage'));
+               
         // Load Css Files
         add_action( 'admin_enqueue_scripts', array($this,'load_custom_css'));
         // Load Js Files
         add_action( 'admin_enqueue_scripts', array($this,'load_custom_js'));
-        // Add Hooks
-        $this->add_hooks();  
-
+        // Add Pages To Admin menu
+        add_action('admin_menu', array($this,'add_pages_to_menu'));
+        add_action('admin_menu',  array($this,'registerOptionPage')); 
+        
     }
     
     /**
 	 * Define activate function
 	 *
-	 * flush rewrite rules
-     *
+     * create plugin main table
+	 * create plugin events tags table
+     
 	 * @since    1.0.0
      * @access   public
 	 */
-    public function activate(){
-        //flush rewrite rules
-        flush_rewrite_rules();
+    public static function activate(){
+
+        $obj = new eventsAdmin();
+        // create Plugin Main Table
+        $obj->create_plugin_main_table();
+        // create Plugin events tags table
+        $obj->create_plugin_events_tags_table();
+        // create new wp-post
+        $obj->create_new_post();
+       
     }
     
     /**
@@ -69,6 +68,16 @@ class eventsAdmin extends eventsCrud{
     public function deactivate(){
         //flush rewrite rules
         flush_rewrite_rules();
+        // delete data from post and option tables 
+        if(!empty(get_option("event_page_id")))
+        {
+            // get page id (option)
+            $page_id = get_option("event_page_id");
+            // delete post
+            wp_delete_post($page_id,true);
+            // delete option
+            delete_option("event_page_id");
+        }
     }
 
     /**
@@ -122,6 +131,7 @@ class eventsAdmin extends eventsCrud{
         ) $charset_collate;";
         require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
         dbDelta( $sql );
+         
     }
     
     /**
@@ -182,21 +192,6 @@ class eventsAdmin extends eventsCrud{
     function registerOptionPage() {
       add_options_page('Events Plugin Settings', 'Events Plugin', 'manage_options', 'EventPluginSettings', array($this,'render_settings_page'));
     }
-
-    /**
-	 * register hooks 
-	 *
-	 * this function used for registers hooks for this plugin
-     *
-	 * @since    1.0.0
-     * @access   private
-	 */
-    private function add_hooks(){
-       // activate
-        register_activation_hook( __FILE__, array($this,'activate'));
-        // deactivate
-        register_deactivation_hook( __FILE__, array($this,'deactivate')); 
-    }
     
     /**
 	 * load css files
@@ -240,6 +235,7 @@ class eventsAdmin extends eventsCrud{
         register_setting("EventPluginSettings",'past_events');
         register_setting("EventPluginSettings",'events_per_page');
     }
+    
     /**
 	 * when user press on events plugin from settings menu
 	 *
@@ -253,11 +249,31 @@ class eventsAdmin extends eventsCrud{
         require_once(PLUGIN_PATH_INCLUDES_ADMIN.'setting.php');
     }
     
-}
+    /**
+	 * add new post to wp_posts
+	 *
+	 * add new post to view data at front end
+     *
+	 * @since    1.0.0
+     * @access   public
+	 */
+    public function create_new_post()
+    {
+       // praparing array for my post   
+        $my_post = array(
+          'post_title'    => "events",
+          'post_content'  => "[events_page]",
+          'post_status'   => 'publish',
+          'post_type' => "page",
+          'post_name' => "my_events"    
+        );
 
-if(class_exists("eventsPlugin"))
-{
-    $eventsPlugin = new eventsPlugin();
+        // Insert the post into the database
+        $event_id = wp_insert_post( $my_post );
+        add_option("event_page_id",$event_id);
+    }    
+
+    
 }
 
 

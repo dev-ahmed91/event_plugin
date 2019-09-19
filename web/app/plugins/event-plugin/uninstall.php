@@ -32,5 +32,15 @@ if(isset($tables_array) && is_array($tables_array))
         // drop the table from the database.
         $wpdb->query( "DROP TABLE IF EXISTS $tables_array[$i]" );
     }
+    // delete data from post and option tables 
+    if(!empty(get_option("event_page_id")))
+    {
+        // get page id (option)
+        $page_id = get_option("event_page_id");
+        // delete post
+        wp_delete_post($page_id,true);
+        // delete option
+        delete_option("event_page_id");
+    }
 }
 

@@ -20,5 +20,6 @@
           </tbody>
 
     </table>
+    <input type="hidden" name="_wp_http_referer" value="http://<?php echo $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'] ?>" />
 <?php submit_button('save')?>
 </form>
